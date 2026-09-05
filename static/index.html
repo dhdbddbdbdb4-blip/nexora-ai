@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Table Studio V7</title><link rel="stylesheet" href="/static/style.css?v=7">
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="brandMark">✦</div><div><b>AI Table Studio</b><small>Smart workspace</small></div></div>
+  <button class="nav active" data-tab="chat"><span>🤖</span>AI-ассистент</button>
+  <button class="nav" data-tab="table"><span>▦</span>Таблицы</button>
+  <button class="nav" data-tab="analytics"><span>◒</span>Аналитика</button>
+  <button class="nav" data-tab="reports"><span>📝</span>Доклады</button>
+  <button class="nav" data-tab="images"><span>🎨</span>Изображения</button>
+  <button class="nav" data-tab="tools"><span>🧰</span>Инструменты</button>
+  <div class="sidebarBottom"><div id="status">● Проверка AI…</div><button class="newBtn" onclick="newProject()">＋ Новый проект</button></div>
+</aside>
+<main>
+<header><div><h1 id="title">AI-ассистент</h1><p id="sub">Поговори с AI или попроси его сделать таблицу.</p></div><div class="headBtns"><button class="headBtn" onclick="file.click()">↑ Импорт</button><input id="file" type="file" accept=".csv,.xlsx,.xls" hidden><button class="avatar">AI</button></div></header>
+
+<section id="chat" class="page active">
+  <div class="heroCard">
+    <span class="eyebrow">✦ AI WORKSPACE</span><h2>AI для работы и жизни</h2><p>Выбери режим — для бизнеса или для обычных задач. AI подстроит инструменты и подсказки под тебя.</p>
+    <div class="audienceSwitch" role="tablist">
+      <button class="audienceBtn active" data-audience="personal">🏠 Для жизни</button>
+      <button class="audienceBtn" data-audience="business">💼 Для бизнеса</button>
+    </div>
+    <div id="audienceIntro" class="audienceIntro">Бюджет, учёба, планы, покупки, тексты и личные задачи.</div>
+    <div id="featureGrid" class="featureGrid"></div>
+  </div>
+  <div class="chatArea"><div id="messages" class="messages"></div><div class="quick"><button onclick="suggest('Объясни простыми словами эту тему')">💡 Объясни</button><button onclick="suggest('Придумай идеи для проекта')">🚀 Идеи</button><button onclick="suggest('Помоги спланировать мой день')">📅 План</button><button onclick="suggest('Создай таблицу расходов на месяц')">📊 Таблица</button></div><div class="chatbox"><textarea id="chatInput" rows="2" placeholder="Напиши сообщение…"></textarea><button class="send" onclick="sendChat()">➤</button></div><div class="hint">Enter — отправить · Shift+Enter — новая строка</div></div>
+</section>
+
+<section id="table" class="page">
+  <div class="tableTop"><div><input id="name" class="nameInput" value="Новая таблица"><div class="tableMeta" id="tableMeta">0 строк · 0 столбцов</div></div><div class="actions"><button class="btn" onclick="undo()">↶</button><button class="btn" onclick="redo()">↷</button><button class="btn" onclick="addRow()">＋ Строка</button><button class="btn" onclick="addCol()">＋ Столбец</button><button class="btn primary" onclick="saveProject()">Сохранить</button></div></div>
+  <div class="aiBar"><input id="transform" placeholder="AI: удали дубликаты, исправь ошибки, добавь НДС 20%…"><button class="btn primary" onclick="transform()">🪄 AI исправит</button><button class="btn" onclick="aiTableAnalysis()">🤖 Анализ AI</button></div>
+  <div class="tableTools"><input id="tableSearch" placeholder="🔍 Поиск по таблице…" oninput="render()"><button class="toolBtn" onclick="duplicateSelected()">⧉ Дублировать</button><button class="toolBtn" onclick="deleteRow()">− Удалить</button><button class="toolBtn" onclick="removeDuplicates()">✦ Дубликаты</button><button class="toolBtn" onclick="clearSelected()">⌫ Очистить</button><button class="toolBtn" onclick="fillNumbers()">1… Заполнить</button><button class="toolBtn" onclick="addTotals()">Σ Итоги</button></div>
+  <div id="tableWrap"></div>
+  <div class="exports"><button class="btn" onclick="exportFile('/api/export/xlsx','xlsx')">Excel</button><button class="btn" onclick="exportFile('/api/export/csv','csv')">CSV</button><button class="btn" onclick="exportFile('/api/export/json','json')">JSON</button><button class="btn" onclick="copyTable()">📋 Копировать</button></div>
+</section>
+
+<section id="analytics" class="page"><div class="panel"><div class="panelHead"><div><h2>📈 Аналитика</h2><p>Быстрая статистика и визуализация текущей таблицы.</p></div><button class="btn" onclick="renderStats()">↻ Обновить</button></div><div id="stats"></div><div id="chart"></div><div class="insights" id="insights"></div></div></section>
+
+<section id="reports" class="page"><div class="panel"><h2>📝 Доклады</h2><p>Создай структурированный текст с помощью Ollama.</p><textarea id="reportPrompt" class="big" placeholder="Напиши тему или задание для доклада…"></textarea><div class="reportActions"><select id="reportStyle"><option>Школьный доклад</option><option>Деловой отчёт</option><option>Научный обзор</option><option>Презентационный текст</option></select><button class="btn primary" onclick="makeReport()">✍️ Создать</button><button class="btn" onclick="copyText('report')">📋 Копировать</button></div><div id="report" class="report"></div></div></section>
+
+<section id="images" class="page"><div class="panel center"><div class="bigicon">🎨</div><h2>Генератор промтов</h2><p>Подготовь prompt для любого генератора изображений.</p><textarea id="imagePrompt" class="big" placeholder="Например: футуристический офис, вечер, неон, кинематографичный стиль…"></textarea><div class="chips"><button onclick="setImage('реалистичный портрет')">Портрет</button><button onclick="setImage('футуристический город')">Футуризм</button><button onclick="setImage('рекламное фото продукта')">Реклама</button><button onclick="setImage('аниме-персонаж')">Аниме</button></div><button class="btn primary" onclick="makeImagePrompt()">🎨 Создать prompt</button><pre id="imageResult"></pre></div></section>
+
+<section id="tools" class="page"><div class="panel"><h2>🧰 Инструменты</h2><p>Дополнительные функции для работы с таблицей и проектом.</p><div class="audienceTools" id="audienceTools"></div>
+ <div class="toolGrid">
+ <button onclick="template('budget')"><b>💰 Бюджет</b><small>12 месяцев доходов и расходов</small></button>
+ <button onclick="template('sales')"><b>🛒 Продажи</b><small>Товары, количество, цена, сумма</small></button>
+ <button onclick="template('tasks')"><b>✅ Задачи</b><small>Задачи, статус, приоритет, срок</small></button>
+ <button onclick="template('students')"><b>🎓 Оценки</b><small>Ученики и предметы</small></button>
+ <button onclick="sortTable(0)"><b>↕ Сортировка</b><small>Отсортировать по первому столбцу</small></button>
+ <button onclick="transpose()"><b>⇄ Транспонировать</b><small>Строки станут столбцами</small></button>
+ <button onclick="toggleTheme()"><b>🌙 Тема</b><small>Светлая / тёмная</small></button>
+ <button onclick="clearTable()"><b>🗑 Очистить</b><small>Создать пустую таблицу</small></button>
+ </div></div></section>
+</main></div>
+<nav class="mobileNav"><button class="active" data-mobile="chat">🤖<span>AI</span></button><button data-mobile="table">▦<span>Таблица</span></button><button data-mobile="analytics">◒<span>Анализ</span></button><button data-mobile="reports">📝<span>Доклад</span></button><button data-mobile="tools">🧰<span>Ещё</span></button></nav>
+<div id="toast" class="toast"></div>
+<script src="/static/app.js?v=7"></script>
+</body></html>
